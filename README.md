@@ -1,3 +1,5 @@
+[![DOI link](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.14828870-FAB70C?logo=doi)](https://doi.org/10.5281/zenodo.14828870)
+
 ## Metagenomics Code
 
 This repository contains code and scripts used to perform the metagenomics analysis and subsequent figure rendering 
