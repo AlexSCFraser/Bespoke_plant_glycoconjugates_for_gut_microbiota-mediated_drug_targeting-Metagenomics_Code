@@ -8,15 +8,14 @@ Describe any scripts, code, or notebooks (e.g., R, Python, Mathematica, MatLab) 
 
 ## Archival data for 'Bespoke plant glycoconjugates for gut microbiota-mediated drug targeting'
 
+Todo: add link below once we have it
+
 [Data for this paper is in an archival dataset on Dryad](Dataset DOI link)
 
 The data used in conjunction with these scripts to generate figures used in the paper is not included in this repository because it is licenced to the public 
 domain and archived permanently on Dryad.
 
 ## Zenodo
-This is a section for linking to other ways to access the data, and for linking to sources the data is derived from, if any.
 
 This code is also mirrored to zenodo, at the following location:
- - [http://...zenodo link](http://...)
-
-
+ - [Zenodo repository](https://doi.org/10.5281/zenodo.14828870)
