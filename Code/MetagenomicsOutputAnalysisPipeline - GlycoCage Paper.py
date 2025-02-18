@@ -27,7 +27,7 @@ import pandas
 from GraphText import adjusted_labels, adjusted_names
 from PULHeatmapGraphs import render_coverage_heatmap_xyloglucan, render_presence_heatmap_xyloglucan
 
-project_folder = os.path.join(getsourcefile(lambda : 0), '..')
+project_folder = pathlib.Path(getsourcefile(lambda : 0)).parents[1]
 
 ibd_metadata_files = [
 
@@ -472,7 +472,7 @@ def compute_xyloglucan_data_df(metadata_files, computed_df_folder, pul_list: lis
             # each timepoint per patient
             # todo: FIX and test new version of timeseries data loading works
             max_df = study_data[["patient_id", "timepoint"] + max_cols].groupby(["patient_id", "timepoint"]).max()
-            study_data = max_df.join(study_data[set(study_data.columns) - set(max_cols)].set_index(["patient_id", "timepoint"])).reset_index()
+            study_data = max_df.join(study_data[list(set(study_data.columns) - set(max_cols))].set_index(["patient_id", "timepoint"])).reset_index()
             # old version
             # study_data = study_data.groupby(["patient_id", "timepoint"], as_index=False).max()[columns_to_keep]
         elif not keep_patient_timeseries:
@@ -1452,7 +1452,8 @@ def render_xyloglucan_timeseries_graphs(dataframes, coverage_threshold, pul_name
         patient_codes = {}
         title = f"{study_name} by sample {name_title_insert} comparison"
         study_prefix = f"{study_name} by sample"
-        save_study_pul_proportions(study_data, graphics_output_folder, study_prefix, name_title_insert)
+        #todo: remove line: save_study_pul_proportions(study_data, graphics_output_folder, study_prefix, name_title_insert)
+        save_study_pul_proportions(study_presence_by_sample_df, graphics_output_folder, study_prefix, name_title_insert)
         render_study_pul_proportions(study_data, "study_name", graphics_output_folder, study_prefix,
                                      name_title_insert, ordering, study_presence_by_sample_df, title,
                                      align_cov_subtitle, alignment_threshold, coverage_threshold, x_label, y_label)
@@ -1531,7 +1532,7 @@ def render_xyloglucan_timeseries_graphs(dataframes, coverage_threshold, pul_name
         patients_ever_below_thresh = pd.Series(study_data[["patient_id"] + coverage_attributes]
                                                .groupby("patient_id")
                                                .min()
-                                               .query(f"max_xygul_coverage < {coverage_threshold}")
+                                               .query(f"max_{cazyme}_coverage < {coverage_threshold}")
                                                .index)
         study_data_subset = study_data.merge(patients_ever_below_thresh, on="patient_id")
         for name in pul_names:
@@ -1605,9 +1606,9 @@ def diffuse_indices(array: pandas.Series, min_index=None, max_index=None, inplac
                     has_duplicates = True
                     if array_copy[i+1] < max_index:
                         j = i+1
-                        # need to loop ahead using j to increment multiples incidices when 3 or more indices
+                        # need to loop ahead using j to increment multiples indices when 3 or more indices
                         # are equal at once
-                        while array_copy[j] == array_copy[i]:
+                        while j < len(array_copy) and array_copy[j] == array_copy[i]:
                             array_copy[j] += 1
                             j += 1
         else:
@@ -1616,7 +1617,7 @@ def diffuse_indices(array: pandas.Series, min_index=None, max_index=None, inplac
                     has_duplicates = True
                     if array_copy[i-1] > min_index:
                         j = i-1
-                        while array_copy[j] == array_copy[i]:
+                        while j >= 0 and array_copy[j] == array_copy[i]:
                             array_copy[j] -= 1
                             j -= 1
         iteration += 1
@@ -1626,7 +1627,7 @@ def diffuse_indices(array: pandas.Series, min_index=None, max_index=None, inplac
 
 def render_timeseries_lineplot(cazyme_insert, graphics_output_folder, max_variable, xygul_name, name_prefix,
                                study_data):
-    y_label = f"{xygul_name}\ncoverage" if xygul_name != max_variable else max_variable
+    y_label = f"{xygul_name}\n{cazyme_insert}\ncoverage" if xygul_name != max_variable else max_variable
     spaced_xygul_name = xygul_name.replace('\n', ' ')
     study_name = study_data["study_name"].unique()[0]
     ax = seaborn.lineplot(data=study_data, x="timepoint", y=y_label, hue="patient_id")
@@ -1695,7 +1696,7 @@ def analyze_xyloglucan_heatmap():
 
 
 def analyze_hmp2_xyloglucan_puls():
-    study_metadata_files = [os.path.join(project_folder, "Data/Metagenomics/HMP2Metadata/HMP2_metadata.tsv")]
+    study_metadata_files = [str(project_folder / "Data" / "Metagenomics" / "HMP2Metadata" / "HMP2_metadata.tsv")]
     timeseries_metadata_files = study_metadata_files
     study_name_alias_dict = ibd_study_name_alias_dict
 
@@ -1719,18 +1720,18 @@ def analyze_hmp2_xyloglucan_puls():
                       "B_uniformis_ATCC_8492_xyGUL_2": "B. uniformis\nxyGUL 2",
                       "B_fluxus_YIT12057_xyGUL": "B. fluxus"
                       }
-    pul_dataframe_file = os.path.join (project_folder, "Data/XyGUL metadata (glycocage paper set).tsv")
-    pickle_folder = os.path.join (project_folder, "Pickles")
-    cazymes_to_analyze = ("GH5_4")
-    mixed_loci_name = "7_xyguls"
+    pul_dataframe_file = str(project_folder / "Data" / "Metagenomics" / "XyGUL metadata (glycocage paper set).tsv")
+    pickle_folder = str(project_folder / "Pickles")
+    cazymes_to_analyze = ("GH5_4",)
+    mixed_loci_name = "8_xyguls"
     pul_tag = "XyGUL"
 
-    data_folder_95 = os.path.join(project_folder, "Data", "SampleXyGULCoverage")
+    data_folder_95 = str(project_folder / "Data" / "Metagenomics" / "SampleXyGULCoverage")
 
-    graphics_output_folder = os.path.join(project_folder, "Code", "GraphOutput")
-    graphics_folder_70 = os.path.join(graphics_output_folder, "70PercentCoverage")
-    graphics_folder_20 = os.path.join(graphics_output_folder, "20PercentCoverage")
-    graphics_folder_timeseries = os.path.join(graphics_output_folder, "timeseries")
+    graphics_output_folder = project_folder / "Code" / "GraphOutput"
+    graphics_folder_70 = str(graphics_output_folder / "70PercentCoverage")
+    graphics_folder_20 = str(graphics_output_folder / "20PercentCoverage")
+    graphics_folder_timeseries = str(graphics_output_folder / "timeseries")
 
     strict_coverage_threshold = 0.7
     loose_coverage_threshold = 0.2
@@ -1761,16 +1762,18 @@ def analyze_hmp2_xyloglucan_puls():
                                         [pul_alias_dict[item] for item in pul_list], alignment_threshold=0.95,
                                         cazyme="GH5_4", study_names_dict=study_name_alias_dict,
                                         graphics_output_folder=graphics_folder_timeseries,
-                                        presence_attributes=timeseries_presence_attributes["genome"],
-                                        coverage_attributes=timeseries_coverage_attributes["genome"])
+                                        presence_attributes=timeseries_presence_attributes["GH5_4"],
+                                        coverage_attributes=timeseries_coverage_attributes["GH5_4"])
 
     graph_rendering_pipeline(study_dataframes, study_name_alias_dict, study_id_dict, pul_list, pul_names,
                              coverage_attributes["GH5_4"], presence_attributes["GH5_4"], "GH5_4", strict_coverage_threshold,
-                             0.95, graphics_folder_70, pul_tag, False, False)
+                             0.95, graphics_folder_70, pul_tag, False, False,
+                             study_id_mapper=study_id_dict)
 
     graph_rendering_pipeline(study_dataframes, study_name_alias_dict, study_id_dict, pul_list, pul_names,
                              coverage_attributes["GH5_4"], presence_attributes["GH5_4"], "GH5_4", loose_coverage_threshold,
-                             0.95, graphics_folder_20, pul_tag, False, False)
+                             0.95, graphics_folder_20, pul_tag, False, False,
+                             study_id_mapper=study_id_dict)
 
 
     pass

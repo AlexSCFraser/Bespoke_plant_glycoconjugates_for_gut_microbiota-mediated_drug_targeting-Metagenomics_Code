@@ -1,3 +1,4 @@
+# 'Bespoke plant glycoconjugates for gut microbiota-mediated drug targeting' Metagenomics
 [![DOI link](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.14828870-FAB70C?logo=doi)](https://doi.org/10.5281/zenodo.14828870)
 
 ## Metagenomics Code
@@ -10,9 +11,7 @@ Describe any scripts, code, or notebooks (e.g., R, Python, Mathematica, MatLab) 
 
 ## Archival data for 'Bespoke plant glycoconjugates for gut microbiota-mediated drug targeting'
 
-Todo: add link below once we have it
-
-[Data for this paper is in an archival dataset on Dryad](Dataset DOI link)
+[Data for this paper is in an archival dataset on Dryad](https://doi.org/10.5061/dryad.np5hqc04q)
 
 The data used in conjunction with these scripts to generate figures used in the paper is not included in this repository because it is licenced to the public 
 domain and archived permanently on Dryad.
